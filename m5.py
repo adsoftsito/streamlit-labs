@@ -51,9 +51,8 @@ if st.sidebar.checkbox('Mostrar todos los empleados'):
     st.subheader('Todos los empleados')
     st.write(data)
 
-### 9. Crear un buscador de empleados con cajas de texto y botones de comando, que 
-permitan buscar por Employee_ID, Hometown o Unit, mostrar dataframe con resultados 
-encontrados y total de empleados. Nota:  Usar funciones con cache. 
+### 9. Crear un buscador de empleados con cajas de texto y botones de comando, que permitan buscar por Employee_ID, Hometown o Unit, mostrar dataframe con resultados 
+### encontrados y total de empleados. Nota:  Usar funciones con cache. 
 idemployee = st.sidebar.text_input('ID de Empleado, Lugar de residencia o de Unidad :')
 btnBuscar = st.sidebar.button('Buscar empleado')###
 
@@ -64,8 +63,8 @@ if (btnBuscar):
    st.write(data_employees)
 
 ### 10. En el sidebar incluir un control selectedbox que permita filtrar los empleados por su nivel 
-educativo, mostrar el dataframe filtrado y total de empleados. Nota:  Usar funciones con 
-cache. ###
+### educativo, mostrar el dataframe filtrado y total de empleados. Nota:  Usar funciones con 
+### cache. ###
 selected_nivelEducativo = st.sidebar.selectbox("Seleccionar Nivel educativo", data['Education_Level'].unique())
 btnFilterbyEducation = st.sidebar.button('Nivel educativo ')
 
@@ -77,8 +76,8 @@ if (btnFilterbyEducation):
    st.dataframe(filterbyedu)
 
 ### 11. En el sidebar crear un control selectedbox con las ciudades que participaron en el 
-estudio, mostrar los empleados por ciudad en un dataframe filtrado y total de 
-empleados. Nota:  Usar funciones con cache. ###
+### estudio, mostrar los empleados por ciudad en un dataframe filtrado y total de 
+### empleados. Nota:  Usar funciones con cache. ###
 
 selected_hometown = st.sidebar.selectbox("Seleccionar lugar de Residencia", data['Hometown'].unique())
 btnFilterbyhometown = st.sidebar.button('Lugar de Residencia ')
@@ -90,7 +89,7 @@ if (btnFilterbyhometown):
 
    st.dataframe(filterbyhome)
 ### 12. Crear un selectedbox para filtrar por la unidad funcional (Unit) a la que pertenece. Nota:  
-Usar funciones con cache. ###
+### Usar funciones con cache. ###
 
 selected_unit = st.sidebar.selectbox("Seleccionar unidad", data['Unit'].unique())
 btnFilterbyunit = st.sidebar.button('Unidad ')
@@ -110,7 +109,7 @@ if st.sidebar.checkbox('Edades'):
     st.bar_chart(hist_values)
 
 ### 14. Crear una gráfica de frecuencias para las unidades funcionales (Unit) para conocer 
-cuántos empleados hay en cada Unidad ###
+### cuántos empleados hay en cada Unidad ###
 
 st.title("Empleados por unidad")
 data = load_data(7000)
@@ -122,7 +121,7 @@ plt.xticks(rotation=40)
 st.pyplot(fig3)
 
 ###15. Analizar los datos con una gráfica que nos permita visualizar las ciudades (Hometown) 
-que tienen el mayor índice de deserción ###
+### que tienen el mayor índice de deserción ###
 
 st.title("Deserción Laboral")
 data = load_data(7001)
@@ -132,12 +131,12 @@ axes[0].plot(df_hometown['Attrition_rate'],'g')
 axes[0].set_title('Deserción por Ciudad')
 
 ### 16. Analizar la información con una gráfica que permita visualizar la edad y la tasa de 
-deserción ###
+### deserción ###
 axes[1].plot(df_hometown['Age'],'b')
 axes[1].set_title('Deserción por Edad')
 
 ### 17. Analizar con una gráfica que determine la relación entre el tiempo de servicio y la tasa 
-de deserción ###
+### de deserción ###
 
 axes[2].plot(df_hometown['Time_of_service'],'r')
 axes[2].set_title('Deserción en el tiempo de servicio')
