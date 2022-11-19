@@ -148,7 +148,7 @@ if st.sidebar.checkbox('Deserción x Ciudad'):
 
     att_hometown = data.groupby("Hometown")["Attrition_rate"].max()
     fig = plt.figure(figsize=(10,5))
-    sns.barplot(att_hometown.index, att_hometown.values, alpha=0.8)
+    sns.barplot(att_hometown.index, att_hometown.values)
     plt.xticks(rotation = 45)
     st.pyplot(fig)
 
