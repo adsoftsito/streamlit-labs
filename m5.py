@@ -108,5 +108,5 @@ if (myname):
 
 #Gráficas----------------------------------------------
 sns.histplot(x=data['Age'])
-sns.countplot(data['Unit'])
+# sns.countplot(data['Unit'])
 plt.xticks(rotation=90)
