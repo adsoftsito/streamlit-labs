@@ -12,7 +12,7 @@ st.write("""Este es el 5o reto de aplicación del diplomado --Data Science and A
 Del Concepto a Desarrollo de Aplicaciones - Live--, analizaremos a través de Streamlit 
 el archivo --Employees.csv--.""")
 
-data_url = ('employees.csv')
+data_url = ('Employees.csv')
 
 @st.cache
 def emp_data():
