@@ -13,7 +13,7 @@ st.header('Dashboard_Empleados 2020')
 st.write(' En esta applicación podras analizar la información de empleados provistos en el Hackathon HackerEarth 2020,  tomando  como  hipótesis  que  esta  información  resultará  explicativa  del  fenómeno  de  deserción laboral que tanto afecta en la actualidad a las empresas y organizaciones')
 
 
-ruta =  'Employees..csv'
+ruta =  'Employees.csv'
 
 @st.cache
 def load_data(nrows):
