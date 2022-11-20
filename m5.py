@@ -1,151 +1,62 @@
-#Erick
+#Roberto
 
+import pandas as pd 
 import streamlit as st 
-import numpy as np
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import codecs
+
+st.title("Reto de aplicación web")
+st.header("Dashboard")
+st.write("Texto")
 
 
-# LECTURA DE ARCHIVO
+
+
+names_data = pd.read_csv('/content/Employees.csv')
+
 @st.cache
 def load_data(nrows):
-    doc = codecs.open('Employees.csv','rU','latin1')
-    data = pd.read_csv(doc,nrows=nrows)
+    doc = codecs.open('/content/Employees.csv','rU','latin1')
+    data = pd.read_csv(doc, nrows=nrows)
     lowercase = lambda x: str(x).lower()
     return data
 
+def filter_data_by_emp(emp):
+    filtered_data_emp = data[data['Employee_ID'].str.upper().str.contains(emp)]
+    return filtered_data_emp
+
+def filter_data_by_emp(employee):
+    filtered_data_emp = data[data['Employee_ID'] == employee]
+    return filtered_data_employee
 
 
-# BARRA LATERAL
-sidebar = st.sidebar
-sidebar.write("BUSQUEDA.")
+import codecs
 
+data_load_state = st.text('Loading cicle nyc data...')
+data = load_data(500)
+data_load_state.text("Done! (using st.cache)")
 
-# TITULO INTERNOS
-st.title("DESERCIÓN LABORAL")
-st.write(""" El fenómeno que actualmente impacta a las empresas y organizaciones.
- Múltiples estudios realizados por empresas y consultoras indican que en México aproximadamente 7 de cada 10 empleados 
-cambiará de trabajo en el corto o mediano plazo por diversas razones""")
-
-# HISTROGRAMA
-data = load_data(7001)
-fig,ax =plt.subplots()
-ax.hist(data.Age, bins=[10,20,30,40,50,60,70])
-st.header(' Histograma Employees - Age')
-ax.set_xlabel('Age')
-ax.set_ylabel('Num.Employees')
-st.pyplot(fig)
-
-# FRECUENCIAS - UNIT PARA SABER CUANTOS EMPLEADOS HAY EN CADA UNA UNIDAD
-
-st.title("EMPLEADOS POR UNIT")
-data = load_data(7000)
-df_hometown = data.groupby('Unit').sum()
-fig3, axes = plt.subplots(figsize=(16,6))
-axes.plot(df_hometown['Attrition_rate'],'g')
-axes.set_title('Deserción por Ciudad')
-plt.xticks(rotation=40)
-st.pyplot(fig3)
-
-#GRAFICA - CIUDADES CON MAYOR INDICE DE DESERCION
-st.title("DESERCIÓN LABORAL - GRAFICAS")
-data = load_data(7001)
-df_hometown = data.groupby('Hometown').mean()
-fig2, axes = plt.subplots(nrows=3, ncols=1, figsize=(10,13))
-axes[0].plot(df_hometown['Attrition_rate'],'g')
-axes[0].set_title('Deserción por Ciudad')
-
-axes[1].plot(df_hometown['Age'],'b')
-axes[1].set_title('Deserción por Edad')
-
-axes[2].plot(df_hometown['Time_of_service'],'r')
-axes[2].set_title('Deserción por tiempo de servicio')
-st.pyplot(fig2)
+if st.sidebar.checkbox('Mostrar a todos los empleados'):
+    st.subheader('Todos los filmes')
+    st.write(data)
 
 
 
-# CHECKBOX - CON TODOS LA VISUALIZACION DE TODO EL DATA FRAME
-data = load_data(7001)
-agree = sidebar.checkbox('mostar toda la información')
-if agree:
-    count_row = data.shape[0]
-    st.write(f'Todos los elementos: {count_row}')
-    st.dataframe(data)
+buscador = st.sidebar.text_input('Employee_ID, Hometown o Unit :')
+btnBuscar = st.sidebar.button('Buscar')
+
+if (btnBuscar):
+   data_emp = filter_data_by_emp(buscador.upper())
+   count_row = data_emp.shape[0]  # Gives number of rows
+   st.write(f"Resulltado : {count_row}")
+   st.write(data_emp)
+
+selected_buscador = st.sidebar.selectbox("Seleccionar Empleado", data['Employee_ID'].unique())
+btnFilterbyEmpleado = st.sidebar.button('Filtrar empleado ')
+
+if (btnFilterbyEmpleado):
+   filterbyempl = filter_data_by_employee(selected_employee)
+   count_row = filterbyempl.shape[0]  # Gives number of rows
+   st.write(f"Total employees : {count_row}")
 
 
 
-# FUNCION BUSQUEDA DE EMPLEADO
-@st.cache
-def load_data_byname(name):
-    data = load_data(7001) 
-    filtered_data_byname = data[(data['Unit'].str.contains(name) | (data['Employee_ID'].str.contains(name))| (data['Hometown'].str.contains(name)))]
-    return filtered_data_byname
-
-name = sidebar.text_input('Buscar Empleado (ID, Hometown o Unit) :')
-if (name):
-    filterbyname = load_data_byname(name)
-    count_row = filterbyname.shape[0]
-    st.write('Informacion por nivel educativo')
-    st.write(f"Total names : {count_row}")
-    st.dataframe(filterbyname)
-
-
-# FUNCION NIVEL EDUCATIVO
-@st.cache
-def load_data_bynivel(select_): 
-    data = load_data(7000)
-    filter =  data.Education_Level == select_
-    filter_data_by_nivel =  data[filter] 
-    return filter_data_by_nivel
-
-
-# SELECT BOX -NIVEL EDUCACION
-select_ =sidebar.selectbox('Seleccionar Nivel Educativo :' , data['Education_Level'].unique())
-botton = sidebar.button('Filtrar')
-
-if (botton):
-    filterbynivel = load_data_bynivel(select_) 
-    count_row = filterbynivel.shape[0] 
-    st.dataframe(filterbynivel)
-    st.write(f"Total : {count_row}")
-
-
-# FUNCION CIUDAD-EMPLEADOS
-@st.cache
-def load_data_by_c_e(select_c): # revisar que parametro
-    data = load_data(7000)
-    filter =  data.Hometown == select_c
-    filter_data_by_c_e =  data[filter]
-    filter_data_by_c_e = filter_data_by_c_e[['Hometown','Employee_ID']]
-    return filter_data_by_c_e
-
-# SELECT BOX CIUDADES-EMPLEADOS
-select_c =sidebar.selectbox('Selecciona la Ciudad :' , data['Hometown'].unique())
-botton_h = sidebar.button('Filtro')
-
-if (botton_h):
-    filterbynivel = load_data_by_c_e(select_c) #tiene que leer las peliculas por director la funsion
-    count_row = filterbynivel.shape[0] # da el numero de filas 3
-    st.dataframe(filterbynivel)
-    st.write(f"Total : {count_row}")
-
-# FUNCION UNIDAD
-@st.cache
-def load_data_by_unit(select_u): # revisar que parametro
-    data = load_data(7000)
-    filter =  data.Unit == select_u
-    filter_data_by_unit =  data[filter]
-    return filter_data_by_unit
-
-select_u =sidebar.selectbox('Selecciona Unidad :' , data['Unit'].unique())
-botton_u = sidebar.button('Filtrar.')
-
-if (botton_u):
-    filterbyunit = load_data_by_unit (select_u) #tiene que leer las peliculas por director la funsion
-    count_row = filterbyunit.shape[0] # da el numero de filas 3
-    st.dataframe(filterbyunit)
-    st.write(f"Total : {count_row}")
-
-
+st.dataframe(names_data)
