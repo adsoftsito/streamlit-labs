@@ -1,149 +1,135 @@
-# lucia moreno
+# Arely
+
 import streamlit as st
 import pandas as pd
 import numpy as np
 import seaborn as sns
-import matplotlib.pyplot as plt
-import codecs
+import plotly.express as px
 
-st.title('Attrition rate')
-st.write("En el presente proyecto se podrán visualizar datos referentes a la tasa deserción de un universo de empleados de manera interactiva ")
+st.title('APLICACIÓN WEB DE CIENCIA DE DATOS')
+st.header("Análisis del archivo --Employees.csv--")
+st.write("""Este es el 5o reto de aplicación del diplomado --Data Science and AI: 
+Del Concepto a Desarrollo de Aplicaciones - Live--, analizaremos a través de Streamlit 
+el archivo --Employees.csv--.""")
 
-DATE_COLUMN = 'started_at'
-DATA_URL = ('Employees.csv')
+data_url = ('employees.csv')
 
 @st.cache
-def load_data(nrows):
-    employees = pd.read_csv(DATA_URL, nrows=nrows)
-    lowercase = lambda x: str(x).lower()
+def emp_data():
+    employees = pd.read_csv(data_url)
     return employees
 
-def filter_data_by_ID(ID):
-    filter_data_by_ID = employees[employees['Employee_ID'].str.upper().str.contains(ID)]
-    return filter_data_by_ID
+employees_state = st.text('Loading data ...')
+employees = emp_data()
+employees_state.text("File upload completed, we're using st.cache!")
 
-def filter_data_by_Hometown(Hometown):
-    filter_data_by_Hometown = employees[employees['Hometown'].str.upper().str.contains(Hometown)]
-    return filter_data_by_Hometown
 
-def filter_data_by_Unit(Unit):
-    filter_data_by_Unit = employees[employees['Unit'].str.upper().str.contains(Unit)]
-    return filter_data_by_Unit
-
-def filter_data_by_educ(education):
-    filter_data_by_educ = employees[employees['Education_Level'] == education]
-    return filter_data_by_educ
-
-def filter_data_by_Ciudad(Ciudad):
-    filter_data_by_Ciudad = employees[employees['Hometown'] == Ciudad]
-    return filter_data_by_Ciudad
-
-def filter_data_by_U_(Unit):
-    filter_data_by_U_ = employees[employees['Unit'] == Unit]
-    return filter_data_by_U_
-
-employees = load_data(7000)
-
-if st.sidebar.checkbox('Mostrar todos los empleados'):
-    st.subheader('Todos los empleados')
-    count_row = employees.shape[0]  # Gives number of rows
-    st.write(f"Total empleados mostrados : {count_row}")
+if st.sidebar.checkbox('Show complete file --Employees.csv--'):
+    st.subheader('Employees.csv')
+    count_row = employees.shape[0]  
+    st.write(f"Total de registros: {count_row}")
     st.write(employees)
 
-ID_filter = st.sidebar.text_input('ID empleado')
-btnBuscarID = st.sidebar.button('Buscar ID')
+@st.cache
+def filter_by_employeeid(employeeid):
+    filtered_employeeid = employees[employees['Employee_ID'].str.upper().str.contains(employeeid)]
+    return filtered_employeeid
 
-if (btnBuscarID):
-   data_id = filter_data_by_ID(ID_filter.upper())
-   count_row = data_id.shape[0]  # Gives number of rows
-   st.write(f"Total empleados mostrados : {count_row}")
-   st.write(data_id)
+@st.cache
+def filter_by_hometown(hometown):
+    filtered_hometown = employees[employees['Hometown'].str.upper().str.contains(hometown)]
+    return filtered_hometown
 
-HT_filter = st.sidebar.text_input('Ciudad de origen del empleado')
-btnBuscarHT = st.sidebar.button('Buscar Hometown')
+@st.cache
+def filter_by_unit(unit):
+    filtered_unit = employees[employees['Unit'].str.upper().str.contains(unit)]
+    return filtered_unit
 
-if (btnBuscarHT):
-   data_ht = filter_data_by_Hometown(HT_filter.upper())
-   count_row = data_ht.shape[0]  # Gives number of rows
-   st.write(f"Total empleados mostrados : {count_row}")
+@st.cache
+def filter_by_edlevel(edlevel):
+    filtered_level= employees[employees['Education_Level'] == edlevel]
+    return filtered_level
+
+@st.cache
+def filter_by_ht(ht):
+    filtered_level= employees[employees['Hometown'] == ht]
+    return filtered_level
+
+@st.cache
+def filter_by_ut(ut):
+    filtered_unit = employees[employees['Unit'] == ut]
+    return filtered_unit
+
+browser_emp = st.sidebar.text_input('Employee_ID :')
+btnsearch_emp = st.sidebar.button('Buscar empleado')
+
+if (btnsearch_emp):
+   data_emp = filter_by_employeeid(browser_emp.upper())
+   count_row = data_emp.shape[0]  
+   st.write(f"Total de empleados : {count_row}")
+   st.write(data_emp)
+
+browser_ht = st.sidebar.text_input('Hometown :')
+btnsearch_ht = st.sidebar.button('Buscar lugar de procedencia')
+
+if (btnsearch_ht):
+   data_ht = filter_by_hometown(browser_ht.upper())
+   count_row = data_ht.shape[0]  
+   st.write(f"Total de empleados : {count_row}")
    st.write(data_ht)
 
-Unit_filter = st.sidebar.text_input('Unidad del empleado')
-btnBuscarUnit = st.sidebar.button('Buscar Unidad')
+browser_unit = st.sidebar.text_input('Unit :')
+btnsearch_unit = st.sidebar.button('Buscar unidad funcional')
 
-if (btnBuscarUnit):
-   data_Unit = filter_data_by_Unit(Unit_filter.upper())
-   count_row = data_Unit.shape[0]  # Gives number of rows
-   st.write(f"Total empleados mostrados : {count_row}")
-   st.write(data_Unit)
+if (btnsearch_unit):
+   data_unit = filter_by_unit(browser_unit.upper())
+   count_row = data_unit.shape[0]  
+   st.write(f"Total de empleados : {count_row}")
+   st.write(data_unit)
 
-selected_educ = st.sidebar.selectbox("Seleccionar Nivel Educativo", employees['Education_Level'].unique())
-btnFilterbyNE = st.sidebar.button('Filtrar NE ')
+selected_edlevel = st.sidebar.selectbox("Seleccionar Nivel Edicativo", employees['Education_Level'].unique())
+btnedlevel = st.sidebar.button('Filtrar nivel educativo')
 
-if (btnFilterbyNE):
-   filterbyNE = filter_data_by_educ(selected_educ)
-   count_row = filterbyNE.shape[0]  # Gives number of rows
-   st.write(f"Total empleados : {count_row}")
+if (btnedlevel):
+   filterbyedlevel = filter_by_edlevel(selected_edlevel)
+   count_row = filterbyedlevel.shape[0] 
+   st.write(f"Total de empleados : {count_row}")
+   st.dataframe(filterbyedlevel)
 
-   st.dataframe(filterbyNE)
+selected_ht = st.sidebar.selectbox("Seleccionar Nivel Edicativo", employees['Hometown'].unique()) 
+btn_ht = st.sidebar.button('Filtrar lugar de procedencia')
 
-selected_city = st.sidebar.selectbox("Seleccionar Ciudad", employees['Hometown'].unique())
-btnFilterbycity = st.sidebar.button('Filtrar Ciudad')
+if (btn_ht):
+   data_ht = filter_by_ht(selected_ht)
+   count_row = data_ht.shape[0]  
+   st.write(f"Total de empleados : {count_row}")
+   st.write(data_ht)
 
-if (btnFilterbycity):
-   filterbycity = filter_data_by_Ciudad(selected_city)
-   count_row = filterbycity.shape[0]  # Gives number of rows
-   st.write(f"Total empleados : {count_row}")
+selected_ut = st.sidebar.selectbox("Seleccionar Unidad Funcional", employees['Unit'].unique()) 
+btn_ut = st.sidebar.button('Filtrar unidad funcional')
 
-   st.dataframe(filterbycity)
+if (btn_ut):
+   data_ut = filter_by_ut(selected_ut)
+   count_row = data_ut.shape[0]  
+   st.write(f"Total de empleados : {count_row}")
+   st.write(data_ut)
 
-selected_unit = st.sidebar.selectbox("Seleccionar Unit", employees['Unit'].unique())
-btnFilterbyunit = st.sidebar.button('Filtrar Unit')
+st.write("*Histograma de edades de los empleados*")
+hist_ages =  employees[['Age','Employee_ID']].groupby('Age').count()
+st.bar_chart(hist_ages) 
 
-if (btnFilterbyunit):
-   btnFilterbyunit = filter_data_by_U_(selected_unit)
-   count_row = btnFilterbyunit.shape[0]  # Gives number of rows
-   st.write(f"Total empleados : {count_row}")
+st.write("*Gráfica de frecuencias de las unidades funcionales*")
+bar_unit = employees[['Unit','Employee_ID']].groupby('Unit').count()
+st.bar_chart(bar_unit) 
 
-   st.dataframe(btnFilterbyunit)
+st.write("*Índice de diserción por ciudad*")
+att_index = employees[['Attrition_rate','Hometown']].groupby('Hometown').mean()
+st.bar_chart(att_index) 
 
-st.markdown("___")
-fig1, ax = plt.subplots()
-ax.hist(employees.Age)
-st.header("Empleados por edad")
-st.write("Existe una mayor proporción de la distribución en el rango de 20 a 30 años")
-st.pyplot(fig1)
+st.write("*Gráfica de edades y tasa de deserción*")
+fig_age_att = px.scatter(employees, x = "Age", y = "Attrition_rate")
+st.plotly_chart(fig_age_att)
 
-st.markdown("___")
-
-fig2, ax2 = plt.subplots()
-sns.countplot(employees['Unit'], ax = ax2)
-plt.xticks(rotation=90)
-st.header("Empleados por Unidad funcional")
-st.write("La unidad que tiene más empleados es IT")
-st.pyplot(fig2)
-
-st.markdown("___")
-
-employees_by_hometown = employees.groupby('Hometown').mean()
-fig3, ax3 = plt.subplots()
-employees_by_hometown['Attrition_rate'].plot(title='Attrition_rate',ax=ax3)
-st.header("Deserción promedio por ciudad")
-st.write("La ciudad que tiene mayor deserción promedio es Springfield")
-st.pyplot(fig3)
-
-st.markdown("___")
-
-fig4, ax4 = plt.subplots()
-sns.scatterplot(x=employees['Age'],y=employees['Attrition_rate'], ax = ax4)
-st.header("Tasa de deserción por edad")
-st.write("La deserción es mayor en empleados menores de los 30 años de edad")
-st.pyplot(fig4)
-
-st.markdown("___")
-
-fig5, ax5 = plt.subplots()
-sns.scatterplot(x=employees['Time_of_service'],y=employees['Attrition_rate'])
-st.header("Tasa de deserción por tiempo de servicio")
-st.write("La tasa de deserción tiene una tendencia decreciente en años de servicio mayores a los 10 años")
-st.pyplot(fig5)
+st.write("*Gráfica de tiempo de servicio y tasa de deserción*")
+fig_ts_att = px.scatter(employees, x = "Time_of_service", y = "Attrition_rate")
+st.plotly_chart(fig_ts_att)
