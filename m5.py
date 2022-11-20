@@ -1,135 +1,167 @@
-# Arely
-
+# Maria Y
 import streamlit as st
 import pandas as pd
+import codecs
 import numpy as np
-import seaborn as sns
-import plotly.express as px
+import matplotlib.pyplot as plt
 
-st.title('APLICACIÓN WEB DE CIENCIA DE DATOS')
-st.header("Análisis del archivo --Employees.csv--")
-st.write("""Este es el 5o reto de aplicación del diplomado --Data Science and AI: 
-Del Concepto a Desarrollo de Aplicaciones - Live--, analizaremos a través de Streamlit 
-el archivo --Employees.csv--.""")
-
-data_url = ('Employees.csv')
 
 @st.cache
-def emp_data():
-    employees = pd.read_csv(data_url)
-    return employees
-
-employees_state = st.text('Loading data ...')
-employees = emp_data()
-employees_state.text("File upload completed, we're using st.cache!")
-
-
-if st.sidebar.checkbox('Show complete file --Employees.csv--'):
-    st.subheader('Employees.csv')
-    count_row = employees.shape[0]  
-    st.write(f"Total de registros: {count_row}")
-    st.write(employees)
+def load_data(nrows):
+    doc = codecs.open('Employees.csv','rU','latin1')
+    if nrows == 0:
+        data = pd.read_csv(doc)
+    else: 
+        data = pd.read_csv(doc, nrows=nrows)
+    lowercase = lambda x: str(x).lower()
+    return data
 
 @st.cache
-def filter_by_employeeid(employeeid):
-    filtered_employeeid = employees[employees['Employee_ID'].str.upper().str.contains(employeeid)]
-    return filtered_employeeid
+def load_data_byName(valor,bandera):
+    doc = codecs.open('Employees.csv','rU','UTF-8')
+    data = pd.read_csv(doc)
+    #lowercase = lambda x: str(x).lower()
+    if bandera == 1:
+        filtered_data_byname = data[data['Employee_ID'].str.contains(valor)]
+    elif bandera == 2: 
+        filtered_data_byname = data[data['Hometown'].str.contains(valor)]
+    elif bandera == 3: 
+        filtered_data_byname = data[data['Unit'].str.contains(valor)]
+    elif bandera == 4: 
+        filtered_data_byname = data[data['Education_Level'].astype(str).str.contains(str(valor))]   
 
-@st.cache
-def filter_by_hometown(hometown):
-    filtered_hometown = employees[employees['Hometown'].str.upper().str.contains(hometown)]
-    return filtered_hometown
+    return filtered_data_byname
 
-@st.cache
-def filter_by_unit(unit):
-    filtered_unit = employees[employees['Unit'].str.upper().str.contains(unit)]
-    return filtered_unit
+#6. Crear título de la aplicación, encabezados y descripción del proyecto
+st.title("Reto | Análisis de deserción de empleados ")
+st.write(f"El aplicativo permite acceder a la información del Hackathon HackerEarth 2020. Específicamente ala información de empleados, para analizar las causas de deserción.")
 
-@st.cache
-def filter_by_edlevel(edlevel):
-    filtered_level= employees[employees['Education_Level'] == edlevel]
-    return filtered_level
+# 7. Crear un sidebar en la aplicación
+sidebar = st.sidebar
+sidebar.subheader("Puedes revisar la información o ver gráficas")
+opciones = sidebar.radio(
+  'Elige opción',
+  ['Filtros','Gráficas'])
 
-@st.cache
-def filter_by_ht(ht):
-    filtered_level= employees[employees['Hometown'] == ht]
-    return filtered_level
 
-@st.cache
-def filter_by_ut(ut):
-    filtered_unit = employees[employees['Unit'] == ut]
-    return filtered_unit
+if opciones == 'Filtros':
+    sidebar.title("Filtros de búsqueda")
+    st.write(f"Tablas de datos")
 
-browser_emp = st.sidebar.text_input('Employee_ID :')
-btnsearch_emp = st.sidebar.button('Buscar empleado')
+    # 8. En sidebar crear un control checkbox que permita mostrar u ocultar el dataframe completo
+    if sidebar.checkbox('Mostrar a todos los empleados'):
+        sidebar.subheader('Todos los empleados')
+        empleados = load_data(500) # cambiar a 500
+        st.write(f"Todos los empleados")
+        st.dataframe(empleados)
 
-if (btnsearch_emp):
-   data_emp = filter_by_employeeid(browser_emp.upper())
-   count_row = data_emp.shape[0]  
-   st.write(f"Total de empleados : {count_row}")
-   st.write(data_emp)
+    # 9. Crear un buscador de empleados con cajas de texto y botones de comando
+    # que permita buscar por Employee_ID, Hometown o Unit, mostrar dataframe con resultados
+    # encontrados  y total de empleados
+    sidebar.subheader("Búsqueda por palabra")
+    opcBuscar = sidebar.radio(
+      'Búsqueda',
+      ['Employee_ID','Hometown','Unit'])
+    buscar = sidebar.text_input('Ingresa el identificador de búsqueda:')
+    btnBuscar = sidebar.button('Buscar')
+    
+    if(btnBuscar):
+        if(opcBuscar == 'Employee_ID'):
+            st.write(f"Filtro por empleado")
+            filterbyname = load_data_byName(buscar,1)
+            st.dataframe(filterbyname)
+            count_row = filterbyname.shape[0]
+            st.write(f"Total empleados : {count_row}")
+        elif(opcBuscar == 'Hometown'):
+            st.write(f"Filtro por ciudad")
+            filterbyname = load_data_byName(buscar,2)
+            st.dataframe(filterbyname)
+            count_row = filterbyname.shape[0]
+            st.write(f"Total ciudad natal : {count_row}")
+        elif(opcBuscar == 'Unit'):
+            st.write(f"Filtro por unidad")
+            filterbyname = load_data_byName(buscar,3)
+            st.dataframe(filterbyname)
+            count_row = filterbyname.shape[0]
+            st.write(f"Total unidades : {count_row}")
 
-browser_ht = st.sidebar.text_input('Hometown :')
-btnsearch_ht = st.sidebar.button('Buscar lugar de procedencia')
+    sidebar.subheader("Búsqueda por selección")
+    datos = load_data(0) #carga los datos para los selectbox
 
-if (btnsearch_ht):
-   data_ht = filter_by_hometown(browser_ht.upper())
-   count_row = data_ht.shape[0]  
-   st.write(f"Total de empleados : {count_row}")
-   st.write(data_ht)
+    # 10. En el sidebar incuir un control selectbox que permita filtrar a los empleados por su nivel educativo
+    # mostrar el frame filtrado y totao de empleados
 
-browser_unit = st.sidebar.text_input('Unit :')
-btnsearch_unit = st.sidebar.button('Buscar unidad funcional')
+    educacion = sidebar.selectbox("Selecciona el nivel educativo", datos['Education_Level'].unique()) 
+    btnEducacion = sidebar.button('Busca por nivel educativo: ')
+    if(btnEducacion):
+        st.write(f"Filtro por nivel educativo seleccionado")
+        filterbyname = load_data_byName(educacion,4)
+        st.dataframe(filterbyname)
+        count_row = filterbyname.shape[0]
+        st.write(f"Total por nivel educativo : {count_row}")
 
-if (btnsearch_unit):
-   data_unit = filter_by_unit(browser_unit.upper())
-   count_row = data_unit.shape[0]  
-   st.write(f"Total de empleados : {count_row}")
-   st.write(data_unit)
+    # 11. En el sidebar incuir un control selectbox con las ciudades que participaron en el estudio
+    # mostrar los empleados por ciudad en un dataframe filtrado y total de empleados
 
-selected_edlevel = st.sidebar.selectbox("Seleccionar Nivel Edicativo", employees['Education_Level'].unique())
-btnedlevel = st.sidebar.button('Filtrar nivel educativo')
+    ciudad = sidebar.selectbox("Selecciona la ciudad", datos['Hometown'].unique())
+    btnCiudad = sidebar.button('Busca por ciudad: ')
+    if(btnCiudad):
+        st.write(f"Filtro por ciudad seleccionada")
+        filterbyname = load_data_byName(ciudad,2)
+        st.dataframe(filterbyname)
+        count_row = filterbyname.shape[0]
+        st.write(f"Total ciudades : {count_row}")
 
-if (btnedlevel):
-   filterbyedlevel = filter_by_edlevel(selected_edlevel)
-   count_row = filterbyedlevel.shape[0] 
-   st.write(f"Total de empleados : {count_row}")
-   st.dataframe(filterbyedlevel)
+     #12. Crear un selectedbox para filtrar por la unidad funcional (Unit) a la que pertenece.
 
-selected_ht = st.sidebar.selectbox("Seleccionar Nivel Edicativo", employees['Hometown'].unique()) 
-btn_ht = st.sidebar.button('Filtrar lugar de procedencia')
+    funcional = sidebar.selectbox("Selecciona la unidad funcional", datos['Unit'].unique())
+    btnFuncional = sidebar.button('Busca por unidad funcional: ')
+    if(btnFuncional):
+        st.write(f"Filtro por unidad seleccionada")
+        filterbyname = load_data_byName(funcional,3)
+        st.dataframe(filterbyname)
+        count_row = filterbyname.shape[0]
+        st.write(f"Total unidades funcionales : {count_row}")
 
-if (btn_ht):
-   data_ht = filter_by_ht(selected_ht)
-   count_row = data_ht.shape[0]  
-   st.write(f"Total de empleados : {count_row}")
-   st.write(data_ht)
+#btnGraficas = sidebar.button('Consulta las gráficas')
+if opciones == 'Gráficas':
+    sidebar.title("Filtros de gráficas")  
+    st.write(f"Gráficas")
+    datos = load_data(0) #carga los datos para los selectbox
 
-selected_ut = st.sidebar.selectbox("Seleccionar Unidad Funcional", employees['Unit'].unique()) 
-btn_ut = st.sidebar.button('Filtrar unidad funcional')
-
-if (btn_ut):
-   data_ut = filter_by_ut(selected_ut)
-   count_row = data_ut.shape[0]  
-   st.write(f"Total de empleados : {count_row}")
-   st.write(data_ut)
-
-st.write("*Histograma de edades de los empleados*")
-hist_ages =  employees[['Age','Employee_ID']].groupby('Age').count()
-st.bar_chart(hist_ages) 
-
-st.write("*Gráfica de frecuencias de las unidades funcionales*")
-bar_unit = employees[['Unit','Employee_ID']].groupby('Unit').count()
-st.bar_chart(bar_unit) 
-
-st.write("*Índice de diserción por ciudad*")
-att_index = employees[['Attrition_rate','Hometown']].groupby('Hometown').mean()
-st.bar_chart(att_index) 
-
-st.write("*Gráfica de edades y tasa de deserción*")
-fig_age_att = px.scatter(employees, x = "Age", y = "Attrition_rate")
-st.plotly_chart(fig_age_att)
-
-st.write("*Gráfica de tiempo de servicio y tasa de deserción*")
-fig_ts_att = px.scatter(employees, x = "Time_of_service", y = "Attrition_rate")
-st.plotly_chart(fig_ts_att)
+    opcionesGrafica = sidebar.radio(
+    'Opciones de gráficas',
+    ['Histograma de empleados por edad','Gráfica de frecuencias para las unidades funcionales','Ciudades Vs Indices de deserción','Edad Vs Indices de deserción','Relación de tiempo de servicio Vs Indices de deserción'])
+    
+    if opcionesGrafica == 'Histograma de empleados por edad':
+        #13. Crear un histograma de los empleados agrupado por edad 
+        st.write(f"Histograma de empleados por edad")
+        fig, ax = plt.subplots()
+        ax.hist(datos['Age'])
+        st.pyplot(fig)
+    elif opcionesGrafica == 'Gráfica de frecuencias para las unidades funcionales':
+        #14. Crear una gráfica de frecuencias para las unidades funcionales (Unit) para conocer cuantos empleados hay por unidades
+        st.write(f"Gráfica de frecuencias para las unidades funcionales")
+        frec_values = datos[['Employee_ID','Unit']].groupby('Unit').count()
+        st.bar_chart(frec_values)
+    elif opcionesGrafica == 'Ciudades Vs Indices de deserción':
+        #15. Analizar los datos con una gráfica que permita visualizar las ciudades (hometown) que tienen el mayor índice de deserción
+        st.write(f"Ciudades Vs Indices de deserción")
+        fig3, ax3 = plt.subplots() 
+        hometown_Max = datos[['Attrition_rate','Hometown']].groupby('Hometown').max()
+        st.bar_chart(hometown_Max)
+        #ax3.plot(datos['Hometown'],datos['Attrition_rate'])
+        #ax3.scatter(x=datos['Hometown'],y=datos['Attrition_rate'])
+        #st.pyplot(fig3)
+    elif opcionesGrafica == 'Edad Vs Indices de deserción':
+        #16. Analizar la información con una gráfica que permita visualizar la edad y la tasa de deserción
+        st.write(f"Edad Vs Indices de deserción")
+        fig1, ax1 = plt.subplots()
+        ax1.scatter(x=datos['Age'],y=datos['Attrition_rate'])
+        st.pyplot(fig1)
+    elif opcionesGrafica == 'Relación de tiempo de servicio Vs Indices de deserción':
+        #17. Analizar con una  gráfica que determine la relación entre el tiempo de servicio y la tasa de deserción
+        st.write(f"Relación de tiempo de servicio Vs Indices de deserción")
+        fig2, ax2 = plt.subplots()
+        ax2.scatter(x=datos['Time_of_service'],y=datos['Attrition_rate'])
+        st.pyplot(fig2)
