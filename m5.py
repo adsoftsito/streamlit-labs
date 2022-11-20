@@ -10,11 +10,11 @@ st.write("Texto")
 
 
 
-names_data = pd.read_csv('/content/Employees.csv')
+names_data = pd.read_csv('Employees.csv')
 
 @st.cache
 def load_data(nrows):
-    doc = codecs.open('/content/Employees.csv','rU','latin1')
+    doc = codecs.open('Employees.csv','rU','latin1')
     data = pd.read_csv(doc, nrows=nrows)
     lowercase = lambda x: str(x).lower()
     return data
