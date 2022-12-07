@@ -1,5 +1,8 @@
+# streamlit run titanic.py --server.enableCORS false --server.enableXsrfProtection false
 streamlit
 altair
 pandas
 numpy
 matplotlib
+seaborn
+plotly
